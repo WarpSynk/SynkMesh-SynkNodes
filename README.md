@@ -23,10 +23,10 @@ git clone https://github.com/yourusername/synknodes.git
 cd synknodes
 cargo build --release
 
-Run
+## Run
 cargo run
 
-Or with environment variables:
+## Or with environment variables:
 
 SYNK_NODE_ID="synk-001" \
 SYNK_TCP_PORT=7000 \
@@ -35,7 +35,7 @@ SYNK_DATA_DIR="./data" \
 SYNK_PEERS="127.0.0.1:7001,127.0.0.1:7002" \
 cargo run
 
-API Examples
+## API Examples
 
 GET /status → Node ID, ports, stored keys
 
@@ -43,12 +43,13 @@ GET /data/{key} → Retrieve value for a key
 
 POST /store → Store key-value pair
 
+
 {
   "key": "username",
   "value": "alice"
 }
 
-TCP Protocol
+## TCP Protocol
 
 PUT key value → Stores a value
 
@@ -57,7 +58,7 @@ GET key → Retrieves a value
 echo "PUT test 123" | nc 127.0.0.1 7000
 echo "GET test" | nc 127.0.0.1 7000
 
-Example Code Snippets
+## Example Code Snippets
 
 main.rs
 
@@ -86,7 +87,7 @@ pub fn generate_node_id() -> String {
     hex::encode(hash)
 }
 
-Roadmap
+## Roadmap
 
 TLS for secure communication
 
@@ -95,6 +96,6 @@ Peer discovery and sync
 Expand API functionality
 
 
-License
+## License
 
 MIT
