@@ -1,35 +1,51 @@
 use crate::config::Config;
-use crate::network::Network;
 use crate::storage::Storage;
-use std::net::SocketAddr;
-use std::sync::Arc;
-use tokio::task;
+use crate::network::Network;
+use crate::api;
+use crate::error::Result;
+use tracing::info;
 
 pub struct SynkNode {
-    pub id: String,
-    pub tcp_port: u16,
-    pub http_port: u16,
-    pub storage: Arc<Storage>,
-    pub peers: Vec<String>,
+    config: Config,
+    storage: Storage,
 }
 
 impl SynkNode {
-    pub fn new(cfg: Config, storage: Storage) -> Self {
-        SynkNode {
-            id: cfg.node_id,
-            tcp_port: cfg.tcp_port,
-            http_port: cfg.http_port,
-            storage: Arc::new(storage),
-            peers: cfg.peers,
-        }
+    pub fn new(config: Config, storage: Storage) -> Self {
+        Self { config, storage }
     }
-
-    pub async fn run_network(self: Arc<Self>) {
-        let addr: SocketAddr = format!("0.0.0.0:{}", self.tcp_port).parse().expect("invalid addr");
-        let network = Network::new(self.storage.clone(), addr);
-        // spawn the listener as a blocking task
-        task::spawn(async move {
-            network.run().await;
-        }).await.ok(); // wait this task until it runs; we keep this simple
+    
+    pub async fn run(self) -> Result<()> {
+        info!("Starting SynkNode {}", self.config.node_id);
+        
+        // Start TCP network server
+        let network = Network::new(self.storage.clone(), self.config.tcp_port);
+        let network_handle = tokio::spawn(async move {
+            network.run().await
+        });
+        
+        // Start HTTP API server
+        let api_handle = tokio::spawn(api::run_api(
+            self.storage,
+            self.config.http_port,
+            self.config.node_id,
+            self.config.tcp_port,
+        ));
+        
+        // Wait for either server to exit
+        tokio::select! {
+            result = network_handle => {
+                if let Err(e) = result {
+                    eprintln!("Network error: {}", e);
+                }
+            }
+            result = api_handle => {
+                if let Err(e) = result {
+                    eprintln!("API error: {}", e);
+                }
+            }
+        }
+        
+        Ok(())
     }
 }
