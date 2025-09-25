@@ -1,0 +1,8 @@
+/target
+**/*.rs.bk
+*.log
+/data
+/tmp
+.env
+.idea
+.vscode
