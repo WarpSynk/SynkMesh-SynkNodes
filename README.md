@@ -14,14 +14,15 @@ It provides peer-to-peer networking, local storage, cryptographic functions, and
 ## Directory Structure
 
 synknodes/ Cargo.toml src/ main.rs        // Entry point node.rs        // Node logic config.rs      // Environment-based config crypto.rs      // Hashing and IDs storage.rs     // Persistent key-value storage network.rs     // TCP communication api.rs         // HTTP API utils.rs       // Logging helpers
+
 ## Installation
 
 Make sure [Rust](https://www.rust-lang.org/tools/install) is installed.
 
 ```bash
-git clone https://github.com/yourusername/synknodes.git
+git clone https://github.com/warpsynk/synknodes.git
 cd synknodes
-cargo build --release
+cargo build --release```
 
 ## Run
 cargo run
